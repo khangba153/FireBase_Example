@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="vertical" android:padding="12dp" android:layout_marginBottom="12dp">
+    <TextView android:id="@+id/txt_id" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:textSize="12sp" tools:text="ID: document_id" />
+    <TextView android:id="@+id/txt_title" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" android:textSize="20sp" android:textStyle="bold" tools:text="Tiêu đề bài viết" />
+    <ImageView android:id="@+id/image_article" android:layout_width="match_parent" android:layout_height="180dp"
+        android:layout_marginTop="12dp" android:scaleType="centerCrop"
+        android:contentDescription="@string/article_image" android:src="@android:drawable/ic_menu_gallery" />
+    <TextView android:id="@+id/txt_content" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="12dp" android:textSize="16sp" tools:text="Nội dung bài viết..." />
+    <TextView android:id="@+id/txt_image_url" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" android:textSize="12sp" tools:text="https://example.com/image.jpg" />
+    <View android:layout_width="match_parent" android:layout_height="1dp"
+        android:layout_marginTop="16dp" android:background="#808080" />
+</LinearLayout>

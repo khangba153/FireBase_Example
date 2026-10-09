@@ -1,3 +1,22 @@
 <resources>
-  <string name="app_name">FireBase_Example</string>
+    <string name="app_name">FireBase Article</string>
+    <string name="new_article">Thêm bài viết</string>
+    <string name="auto_id">ID được Firestore tạo tự động khi thêm bài.</string>
+    <string name="article_title">Tiêu đề</string>
+    <string name="article_content">Nội dung</string>
+    <string name="article_image_url">URL ảnh (HTTPS)</string>
+    <string name="article_image">Ảnh bài viết</string>
+    <string name="title_hint">Nhập tiêu đề</string>
+    <string name="content_hint">Nhập nội dung</string>
+    <string name="image_hint">https://...</string>
+    <string name="add_article">Thêm</string>
+    <string name="show_articles">Xem danh sách</string>
+    <string name="article_list">Danh sách bài viết</string>
+    <string name="title_required">Vui lòng nhập tiêu đề</string>
+    <string name="content_required">Vui lòng nhập nội dung</string>
+    <string name="image_url_required">Nhập URL ảnh HTTPS hợp lệ</string>
+    <string name="article_saved">Đã lưu bài viết</string>
+    <string name="article_save_error">Không lưu được bài. Kiểm tra mạng và quyền Firestore.</string>
+    <string name="article_load_error">Không đọc được bài. Kiểm tra mạng và quyền Firestore.</string>
+    <string name="firebase_config_missing">Chưa có cấu hình Firebase. Thêm app/google-services.json rồi build lại.</string>
 </resources>

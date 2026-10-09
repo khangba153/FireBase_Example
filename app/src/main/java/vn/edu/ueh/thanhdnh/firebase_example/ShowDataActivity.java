@@ -1,86 +1,105 @@
 package vn.edu.ueh.thanhdnh.firebase_example;
 
 import android.os.Bundle;
-import android.util.Log;
-
+import android.view.View;
+import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
+import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 public class ShowDataActivity extends AppCompatActivity {
     FirebaseFirestore db;
     RecyclerView recyclerView;
-    List<User> users = new ArrayList();
+    List<Article> articles = new ArrayList<Article>();
+    ArticleViewAdapter adapter;
+    ListenerRegistration articleListener;
 
+    // Giữ RecyclerView và LinearLayoutManager của thầy để hiển thị Article.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_show_data);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-
-        FirebaseApp.initializeApp(this);
-        //users.add(new User("default", "000"));
-
+        applySystemBarPadding();
         recyclerView = findViewById(R.id.reclyclerview);
-        UserViewAdapter adapter = new UserViewAdapter(getBaseContext(), users);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getBaseContext()));
+        adapter = new ArticleViewAdapter(this, articles);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
-
-        db = FirebaseFirestore.getInstance();
-        /*db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-          @Override
-          public void onComplete(@NonNull Task<QuerySnapshot> task) {
-            if(task.isSuccessful()){
-              users.clear();
-              for(QueryDocumentSnapshot q : task.getResult()){
-                Map<String, Object> data = q.getData();
-                User user = new User((String)data.get("name"), (String)data.get("phone"));
-                users.add(user);
-              }
-              adapter.update(users);
-              adapter.notifyDataSetChanged();
-            }
-          }
-        });*/
-      db.collection("users").addSnapshotListener(new EventListener<QuerySnapshot>() {
-        @Override
-        public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException error) {
-          if (snapshots != null) {
-            users.clear();
-            for (QueryDocumentSnapshot q : snapshots) {
-              Map<String, Object> data = q.getData();
-              User user = new User((String) data.get("name"), (String) data.get("phone"));
-              users.add(user);
-            }
-            adapter.update(users);
-            adapter.notifyDataSetChanged();
-          }
+        if (FirebaseApp.initializeApp(this) == null) {
+            Toast.makeText(this, R.string.firebase_config_missing, Toast.LENGTH_LONG).show();
+            return;
         }
-      });
+        db = FirebaseFirestore.getInstance();
+    }
+
+    // Lắng nghe articles khi màn hình đang hiển thị, giống SnapshotListener của thầy.
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (db == null) {
+            return;
+        }
+        articleListener = db.collection("articles").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            // Mỗi lần dữ liệu đổi, đọc lại danh sách rồi cập nhật Adapter.
+            @Override
+            public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    android.util.Log.e("Article", "Không đọc được articles", error);
+                    Toast.makeText(ShowDataActivity.this, R.string.article_load_error, Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if (snapshots != null) {
+                    articles.clear();
+                    for (QueryDocumentSnapshot document : snapshots) {
+                        Article article = document.toObject(Article.class);
+                        article.setId(document.getId());
+                        articles.add(article);
+                    }
+                    adapter.update(articles);
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
+    }
+
+    // Gỡ listener khi rời màn hình để không tiếp tục cập nhật giao diện đã đóng.
+    @Override
+    protected void onStop() {
+        if (articleListener != null) {
+            articleListener.remove();
+            articleListener = null;
+        }
+        super.onStop();
+    }
+
+    // Chừa khoảng trống cho thanh hệ thống giống màn hình nhập.
+    private void applySystemBarPadding() {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), new OnApplyWindowInsetsListener() {
+            // Đặt padding theo vùng thanh hệ thống.
+            @NonNull
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(@NonNull View view, @NonNull WindowInsetsCompat insets) {
+                Insets spaces = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                view.setPadding(spaces.left, spaces.top, spaces.right, spaces.bottom);
+                return insets;
+            }
+        });
+        ViewCompat.requestApplyInsets(findViewById(R.id.main));
     }
 }

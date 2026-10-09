@@ -1,6 +1,12 @@
 plugins {
   alias(libs.plugins.android.application)
-  alias(libs.plugins.google.gms.google.services)
+  alias(libs.plugins.google.gms.google.services) apply false
+}
+
+// Chỉ bỏ cấu hình Firebase khi chủ động kiểm tra Java/XML bằng -PskipFirebaseConfig.
+// Build bình thường vẫn yêu cầu google-services.json thật.
+if (!providers.gradleProperty("skipFirebaseConfig").isPresent) {
+  apply(plugin = "com.google.gms.google-services")
 }
 
 android {
@@ -39,6 +45,8 @@ dependencies {
   implementation(libs.activity)
   implementation(libs.constraintlayout)
   implementation(libs.firebase.firestore)
+  implementation("androidx.recyclerview:recyclerview:1.3.2")
+  implementation("com.squareup.picasso:picasso:2.8")
   testImplementation(libs.junit)
   androidTestImplementation(libs.ext.junit)
   androidTestImplementation(libs.espresso.core)
